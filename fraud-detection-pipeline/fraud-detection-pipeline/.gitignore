@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Data (PaySim is large - never commit raw data)
+data/*.csv
+data/*.csv.zip
+!data/.gitkeep
+
+# Models
+model/artifacts/*.pkl
+model/artifacts/*.joblib
+!model/artifacts/.gitkeep
+
+# Spark
+spark-warehouse/
+metastore_db/
+*.crc
+_SUCCESS
+
+# Docker volumes / logs
+*.log
+logs/
+
+# Env files
+.env
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Checkpoints
+checkpoints/

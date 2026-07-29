@@ -1,0 +1,72 @@
+{
+  "title": "Real-Time Fraud Detection Pipeline",
+  "uid": "fraud-detection-overview",
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "time": { "from": "now-1h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Kafka Messages In Per Second (transaction ingest rate)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(rate(kafka_topic_partition_current_offset{topic=\"transactions\"}[1m]))",
+          "legendFormat": "events/sec"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Kafka Consumer Lag (Spark streaming job)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(kafka_consumergroup_lag{topic=\"transactions\"}) by (consumergroup)",
+          "legendFormat": "{{consumergroup}}"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Kafka Broker/Topic Partitions Online",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 8 },
+      "targets": [
+        { "expr": "count(kafka_topic_partitions{topic=\"transactions\"})", "legendFormat": "partitions" }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Under-Replicated Partitions",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 8 },
+      "targets": [
+        { "expr": "sum(kafka_topic_partition_under_replicated_partition)", "legendFormat": "under-replicated" }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Notes: Alert Volume & Latency (Cassandra-backed panels)",
+      "type": "text",
+      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 8 },
+      "options": {
+        "mode": "markdown",
+        "content": "### Cassandra-sourced panels\nAlert volume, systemic processing latency (`pipeline_metrics.avg_latency_ms`), and transaction velocity are best served by adding a **Cassandra/CQL Grafana data source plugin** (e.g. `hadesarchitect-cassandra-datasource`), then building panels against:\n\n- `fraud_detection.fraud_alerts` — count(*) grouped by `severity` over `alert_date`\n- `fraud_detection.pipeline_metrics` — `avg_latency_ms`, `alerts_in_batch` over `batch_id`\n- `fraud_detection.transactions` — `count(*)` over `event_time` for velocity\n\nSee `docs/ARCHITECTURE.md` for the exact plugin install + panel query examples."
+      }
+    },
+    {
+      "id": 6,
+      "title": "Prometheus Scrape Health",
+      "type": "stat",
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 14 },
+      "targets": [
+        { "expr": "up", "legendFormat": "{{job}}" }
+      ]
+    }
+  ]
+}
